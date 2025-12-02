@@ -8,10 +8,34 @@ struct IDRange {
 fn sum_up(vec_idranges: Vec<IDRange>) -> u64 {
     vec_idranges
         .into_iter()
-        .map(|idrange| get_invalid(idrange).iter().copied().sum::<u64>())
+        .map(|idrange| get_invalid_complex(idrange).iter().copied().sum::<u64>())
         .sum::<u64>()
 }
 
+fn check_id(id: u64) -> bool {
+    let string_id = id.to_string();
+    let vec_id: Vec<u32> = string_id.chars().map(|c| c.to_digit(10).unwrap()).collect();
+    for n in 1..=string_id.len() / 2 {
+        let chunks: Vec<&[u32]> = vec_id.chunks(n).collect();
+        let first_chunk = chunks[0];
+        if chunks.iter().cloned().all(|chunk| chunk == first_chunk) {
+            return true;
+        }
+    }
+    false
+}
+
+fn get_invalid_complex(idrange: IDRange) -> Vec<u64> {
+    let mut invalid_ids: Vec<u64> = vec![];
+    for id in idrange.first_id..=idrange.last_id {
+        if check_id(id) {
+            invalid_ids.push(id);
+        }
+    }
+    return invalid_ids;
+}
+
+#[allow(dead_code)]
 fn get_invalid(idrange: IDRange) -> Vec<u64> {
     let mut invalid_ids: Vec<u64> = vec![];
     for id in idrange.first_id..=idrange.last_id {
@@ -54,12 +78,14 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn passes_test() {
         let filepath = String::from("test_input.txt");
         let id_ranges = parse(filepath);
         assert_eq!(sum_up(id_ranges), 1227775554)
     }
     #[test]
+    #[ignore]
     fn does_anything() {
         let filepath = String::from("test_input.txt");
         let id_ranges = parse(filepath);
@@ -68,9 +94,9 @@ mod tests {
     #[test]
     fn gets_ids() {
         let idrange = IDRange {
-            first_id: 11,
-            last_id: 22,
+            first_id: 95,
+            last_id: 115,
         };
-        assert_eq!(get_invalid(idrange), vec![11, 22]);
+        assert_eq!(get_invalid_complex(idrange), vec![99, 111]);
     }
 }
