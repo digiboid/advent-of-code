@@ -16,8 +16,8 @@ fn check_id(id: u64) -> bool {
     let string_id = id.to_string();
     let vec_id: Vec<u32> = string_id.chars().map(|c| c.to_digit(10).unwrap()).collect();
     for n in 1..=string_id.len() / 2 {
-        let chunks: Vec<&[u32]> = vec_id.chunks(n).collect();
-        let first_chunk = chunks[0];
+        let chunks: Vec<Vec<u32>> = vec_id.chunks(n).map(|chunk| chunk.to_vec()).collect();
+        let first_chunk = chunks[0].clone();
         if chunks.iter().cloned().all(|chunk| chunk == first_chunk) {
             return true;
         }
