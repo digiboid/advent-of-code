@@ -4,12 +4,16 @@
 
 use std::cmp::Ordering;
 use std::fs;
+use std::ops::Index;
 
 fn find_largest(bank_vec: Vec<u32>) -> u32 {
     let mut vec = bank_vec.clone();
     vec.truncate(vec.len() - 1); // largest can't be last digit
-    let max = vec.iter().enumerate().max_by_key(|&(_idx, &val)| val);
-    return max.map(|(idx, _val)| idx as u32).unwrap();
+    // The problem here is that below takes the last value
+    // let max = vec.iter().enumerate().max_by_key(|&(_idx, &val)| val);
+    // return max.map(|(idx, _val)| idx as u32).unwrap();
+    let max = vec.iter().max().unwrap().clone();
+    vec.iter().position(|&id| id == max).unwrap() as u32
 }
 
 fn find_second(bank_vec: Vec<u32>, largest: u32) -> u32 {
@@ -29,7 +33,10 @@ fn process_bank(bank: String) -> u32 {
 }
 
 fn sum_up(bank_shelf: Vec<String>) -> u32 {
-    return 357;
+    let vec = bank_shelf.clone();
+    let mapped_vec: Vec<u32> = vec.iter().map(|x| process_bank(x.clone())).collect();
+    let sum_vec: u32 = mapped_vec.iter().cloned().sum();
+    return sum_vec;
 }
 
 fn parse(filepath: String) -> Vec<String> {
@@ -38,7 +45,8 @@ fn parse(filepath: String) -> Vec<String> {
 }
 
 fn main() {
-    println!("Hello, world!");
+    let sum_bank = sum_up(parse(String::from("input.txt")));
+    println!("Sum: {:?}", sum_bank);
 }
 
 #[cfg(test)]
@@ -55,5 +63,10 @@ mod tests {
     fn test_bank() {
         let bank = String::from("987654321111111");
         println!("bank is: {:?}", process_bank(bank))
+    }
+    #[test]
+    fn passes_test() {
+        let sum_bank = sum_up(parse(String::from("test_input.txt")));
+        assert_eq!(sum_bank, 357)
     }
 }
