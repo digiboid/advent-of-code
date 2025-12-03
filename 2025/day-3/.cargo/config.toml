@@ -1,0 +1,9 @@
+# Development-time compiler configuration
+[build]
+rustflags = [
+    "-A", "dead_code",
+    "-A", "unused_variables",
+    "-A", "unused_imports",
+    "-A", "unused_mut",
+    "-A", "unused_must_use",
+ ]
