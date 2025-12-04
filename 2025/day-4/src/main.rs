@@ -20,22 +20,16 @@ struct Spot {
 struct Paper;
 
 fn fill_adjacent(mut warehouse: Warehouse) -> Warehouse {
-    let directions = [
-        (-1, -1),
-        (-1, 0),
-        (-1, 1),
-        (0, -1),
-        (0, 1),
-        (1, -1),
-        (1, 0),
-        (1, 1),
-    ];
+    let directions: Vec<(i32, i32)> = (-1..=1)
+        .flat_map(|dr| (-1..=1).map(move |dc| (dr, dc)))
+        .filter(|&(dr, dc)| !(dr == 0 && dc == 0))
+        .collect();
     let max_row = warehouse.row.len();
     for row in 0..max_row {
         let max_col = warehouse.row[row].column.len();
         for col in 0..max_col {
             warehouse.row[row].column[col].adjacent = 0;
-            for direction in directions {
+            for direction in directions.clone() {
                 let nrow = row as i32 + direction.0;
                 let ncol = col as i32 + direction.1;
                 if nrow >= 0 && nrow < max_row as i32 && ncol >= 0 && ncol < max_col as i32 {
