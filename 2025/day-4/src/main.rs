@@ -12,12 +12,9 @@ struct Shelf {
 
 #[derive(Debug)]
 struct Spot {
-    item: Option<Paper>,
+    is_paper: bool,
     adjacent: usize,
 }
-
-#[derive(Debug, PartialEq)]
-struct Paper;
 
 fn fill_adjacent(mut warehouse: Warehouse) -> Warehouse {
     let directions: Vec<(i32, i32)> = (-1..=1)
@@ -35,8 +32,8 @@ fn fill_adjacent(mut warehouse: Warehouse) -> Warehouse {
                 if (0..max_row as i32).contains(&nrow) && (0..max_col as i32).contains(&ncol) {
                     let nrow = nrow as usize;
                     let ncol = ncol as usize;
-                    if warehouse.row[nrow].column[ncol].item == Some(Paper)
-                        && warehouse.row[row].column[col].item == Some(Paper)
+                    if warehouse.row[nrow].column[ncol].is_paper == true
+                        && warehouse.row[row].column[col].is_paper == true
                     {
                         warehouse.row[row].column[col].adjacent += 1
                     }
@@ -54,11 +51,11 @@ fn shelf_it(line: &str) -> Shelf {
         .iter()
         .map(|c| match c {
             '.' => Spot {
-                item: None,
+                is_paper: false,
                 adjacent: 0,
             },
             '@' => Spot {
-                item: Some(Paper),
+                is_paper: true,
                 adjacent: 0,
             },
             _ => panic!(":eee:"),
@@ -80,7 +77,7 @@ fn count_removable(warehouse: &Warehouse) -> usize {
     let mut all_removables = 0;
     for row in &warehouse.row {
         for column in &row.column {
-            if column.adjacent < 4 && column.item == Some(Paper) {
+            if column.adjacent < 4 && column.is_paper == true {
                 all_removables += 1
             }
         }
@@ -92,9 +89,9 @@ fn remove_removables(mut warehouse: Warehouse) -> Warehouse {
     for row in 0..warehouse.row.len() {
         for column in 0..warehouse.row[row].column.len() {
             if warehouse.row[row].column[column].adjacent < 4
-                && warehouse.row[row].column[column].item == Some(Paper)
+                && warehouse.row[row].column[column].is_paper == true
             {
-                warehouse.row[row].column[column].item = None;
+                warehouse.row[row].column[column].is_paper = true;
             }
         }
     }
