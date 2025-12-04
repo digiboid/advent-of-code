@@ -32,7 +32,7 @@ fn fill_adjacent(mut warehouse: Warehouse) -> Warehouse {
             for direction in directions.clone() {
                 let nrow = row as i32 + direction.0;
                 let ncol = col as i32 + direction.1;
-                if nrow >= 0 && nrow < max_row as i32 && ncol >= 0 && ncol < max_col as i32 {
+                if (0..max_row as i32).contains(&nrow) && (0..max_col as i32).contains(&ncol) {
                     let nrow = nrow as usize;
                     let ncol = ncol as usize;
                     if warehouse.row[nrow].column[ncol].item == Some(Paper)
