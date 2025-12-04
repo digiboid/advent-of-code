@@ -1,4 +1,4 @@
-use std::{clone, fs};
+use std::fs;
 
 #[derive(Debug)]
 struct Warehouse {
@@ -20,65 +20,32 @@ struct Spot {
 struct Paper;
 
 fn fill_adjacent(mut warehouse: Warehouse) -> Warehouse {
+    let directions = [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ];
     let max_row = warehouse.row.len();
     for row in 0..max_row {
         let max_col = warehouse.row[row].column.len();
-        for column in 0..max_col {
-            warehouse.row[row].column[column].adjacent = 0;
-            if row > 0 && column > 0 {
-                if warehouse.row[row - 1].column[column - 1].item == Some(Paper)
-                    && warehouse.row[row].column[column].item == Some(Paper)
-                {
-                    warehouse.row[row].column[column].adjacent += 1
-                }
-            }
-            if column > 0 {
-                if warehouse.row[row].column[column - 1].item == Some(Paper)
-                    && warehouse.row[row].column[column].item == Some(Paper)
-                {
-                    warehouse.row[row].column[column].adjacent += 1
-                }
-            }
-            if row + 1 < max_row && column > 0 {
-                if warehouse.row[row + 1].column[column - 1].item == Some(Paper)
-                    && warehouse.row[row].column[column].item == Some(Paper)
-                {
-                    warehouse.row[row].column[column].adjacent += 1
-                }
-            }
-            if row > 0 {
-                if warehouse.row[row - 1].column[column].item == Some(Paper)
-                    && warehouse.row[row].column[column].item == Some(Paper)
-                {
-                    warehouse.row[row].column[column].adjacent += 1
-                }
-            }
-            if row + 1 < max_row {
-                if warehouse.row[row + 1].column[column].item == Some(Paper)
-                    && warehouse.row[row].column[column].item == Some(Paper)
-                {
-                    warehouse.row[row].column[column].adjacent += 1
-                }
-            }
-            if row > 0 && column + 1 < max_col {
-                if warehouse.row[row - 1].column[column + 1].item == Some(Paper)
-                    && warehouse.row[row].column[column].item == Some(Paper)
-                {
-                    warehouse.row[row].column[column].adjacent += 1
-                }
-            }
-            if column + 1 < max_col {
-                if warehouse.row[row].column[column + 1].item == Some(Paper)
-                    && warehouse.row[row].column[column].item == Some(Paper)
-                {
-                    warehouse.row[row].column[column].adjacent += 1
-                }
-            }
-            if row + 1 < max_row && column + 1 < max_col {
-                if warehouse.row[row + 1].column[column + 1].item == Some(Paper)
-                    && warehouse.row[row].column[column].item == Some(Paper)
-                {
-                    warehouse.row[row].column[column].adjacent += 1
+        for col in 0..max_col {
+            warehouse.row[row].column[col].adjacent = 0;
+            for direction in directions {
+                let nrow = row as i32 + direction.0;
+                let ncol = col as i32 + direction.1;
+                if nrow >= 0 && nrow < max_row as i32 && ncol >= 0 && ncol < max_col as i32 {
+                    let nrow = nrow as usize;
+                    let ncol = ncol as usize;
+                    if warehouse.row[nrow].column[ncol].item == Some(Paper)
+                        && warehouse.row[row].column[col].item == Some(Paper)
+                    {
+                        warehouse.row[row].column[col].adjacent += 1
+                    }
                 }
             }
         }
