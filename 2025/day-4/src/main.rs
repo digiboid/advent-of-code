@@ -24,7 +24,7 @@ fn fill_adjacent(mut warehouse: Warehouse) -> Warehouse {
     for row in 0..max_row {
         let max_col = warehouse.row[row].column.len();
         for column in 0..max_col {
-            warehouse.row[row].column[column].adjacent == 0;
+            warehouse.row[row].column[column].adjacent = 0;
             if row > 0 && column > 0 {
                 if warehouse.row[row - 1].column[column - 1].item == Some(Paper)
                     && warehouse.row[row].column[column].item == Some(Paper)
@@ -127,9 +127,28 @@ fn count_removable(warehouse: &Warehouse) -> usize {
     return all_removables;
 }
 
+fn remove_removables(mut warehouse: Warehouse) -> Warehouse {
+    for row in 0..warehouse.row.len() {
+        for column in 0..warehouse.row[row].column.len() {
+            if warehouse.row[row].column[column].adjacent < 4
+                && warehouse.row[row].column[column].item == Some(Paper)
+            {
+                warehouse.row[row].column[column].item = None;
+            }
+        }
+    }
+    return warehouse;
+}
 fn main() {
-    let warehouse = parse(String::from("input.txt"));
-    let warehouse = fill_adjacent(warehouse);
-    let removable = count_removable(&warehouse);
+    let mut warehouse = parse(String::from("input.txt"));
+    let mut removable = 0;
+    loop {
+        warehouse = fill_adjacent(warehouse);
+        if count_removable(&warehouse) == 0 {
+            break;
+        }
+        removable += count_removable(&warehouse);
+        warehouse = remove_removables(warehouse);
+    }
     println!("{}", removable);
 }
