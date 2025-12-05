@@ -17,34 +17,32 @@ fn parse(path: &str) -> usize {
         .iter()
         .map(|s| s.split("-").collect::<Vec<&str>>())
         .collect();
-    let id_ranges: Vec<Vec<usize>> = id_ranges
+    let id_ranges: Vec<(usize, usize)> = id_ranges
         .clone()
         .iter()
         .map(|r| {
             let i1 = r[0].parse::<usize>().unwrap();
             let i2 = r[1].parse::<usize>().unwrap();
-            (i1..=i2).collect()
+            (i1, i2)
         })
         .collect();
     let fresh_ids: Vec<usize> = ids
-        .clone()
         .iter()
         .filter(|id| {
             id_ranges
-                .clone()
                 .iter()
-                .any(move |range| range.contains(id))
+                .any(|range| **id >= range.0 && **id <= range.1)
         })
         .copied()
         .collect();
 
-    dbg!(&id_ranges);
-    dbg!(&ids);
-    dbg!(&fresh_ids);
+    // dbg!(&id_ranges);
+    // dbg!(&ids);
+    // dbg!(&fresh_ids);
     fresh_ids.iter().count()
 }
 
 fn main() {
-    let fresh_count = parse("test_input.txt");
+    let fresh_count = parse("input.txt");
     println!("Fresh: {fresh_count}");
 }
