@@ -20,7 +20,7 @@ fn calc_operation(opr: &Operation) -> isize {
     }
 }
 
-fn parse(path: &str) -> isize {
+fn part_one(path: &str) -> isize {
     let contents = fs::read_to_string(path).expect("No file");
     let contents: Vec<&str> = contents.lines().collect();
     let contents: Vec<Vec<&str>> = contents
