@@ -56,5 +56,5 @@ fn parse(path: &str) -> isize {
 
 fn main() {
     // parse("test_input.txt");
-    println!("Sum: {:?}", parse("test_input.txt"));
+    println!("Sum: {:?}", parse("input.txt"));
 }
