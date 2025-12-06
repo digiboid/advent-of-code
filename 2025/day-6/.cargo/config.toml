@@ -6,4 +6,6 @@ rustflags = [
     "-A", "unused_imports",
     "-A", "unused_mut",
     "-A", "unused_must_use",
+    "-A", "unused_assignments",
+    "-A", "unused",
  ]

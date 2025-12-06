@@ -59,40 +59,68 @@ fn parse(path: &str) -> isize {
     // dbg!(&contents);
 }
 
+fn gather_operation(cidx: usize, opr_len: usize, contents: Vec<Vec<char>>) -> Operation {
+    let opr = contents.last().unwrap()[cidx - opr_len];
+    // dbg!(&opr);
+    let mut nums = contents.clone();
+    let mut all_nums: Vec<isize> = vec![];
+    nums.truncate(contents.len() - 1);
+
+    for n in (1..=opr_len) {
+        let mut single_num: Vec<char> = vec![];
+        for line in nums.clone() {
+            single_num.push(line[cidx - n]);
+            // dbg!(&single_num);
+        }
+        let mut single_num: String = single_num.iter().collect();
+        let single_num = single_num.trim();
+        let single_num: usize = single_num.parse().unwrap();
+        all_nums.push(single_num as isize);
+    }
+
+    // for dr in (1..=opr_len) {
+    //     for dc in (1..=opr_len).rev() {
+    //         dbg!(&nums[contents.len() - 1 - dc]);
+    //         single_num.push(nums[contents.len() - dc][cidx - dr]);
+    //     }
+    //     // dbg!(&single_num);
+    //     all_nums.push(single_num as isize);
+    // }
+    // dbg!(&all_nums);
+    Operation {
+        nums: all_nums,
+        opr,
+    }
+}
+
 fn part_two(path: &str) -> isize {
     let contents = fs::read_to_string(path).expect("No file");
     let contents: Vec<&str> = contents.lines().collect();
-    dbg!(&contents);
-    // let contents: Vec<Vec<&str>> = contents
-    //     .iter()
-    //     .map(|x| x.split_whitespace().collect())
-    //     .collect();
-    // let mut columns: Vec<Vec<&str>> = vec![];
-    // for n in 0..contents[0].len() {
-    //     let mut column: Vec<&str> = vec![];
-    //     for i in 0..contents.len() {
-    //         column.push(contents[i][n]);
-    //     }
-    //     columns.push(column);
-    // }
+    let contents: Vec<String> = contents.iter().map(|l| l.to_string() + " ").collect();
+    // dbg!(&contents);
+    let contents: Vec<Vec<char>> = contents.iter().map(|l| l.chars().collect()).collect();
+    // dbg!(&contents[0]);
+    // dbg!(&contents[0].len());
+    let mut operations: Vec<Operation> = vec![];
+    let mut opr_len = 0;
+    for cidx in 0..contents[0].len() {
+        // for cidx in 4..8 {
+        if !contents.iter().all(|l| l[cidx] == ' ') {
+            opr_len += 1;
+            // dbg!(&opr_len);
+        } else {
+            // dbg!(&opr_len);
+            operations.push(gather_operation(cidx, opr_len, contents.clone()));
+            opr_len = 0;
+        }
+    }
 
-    // let columns: Vec<PreOperation> = columns
-    //     .iter()
-    //     .map(|col| {
-    //         let mut digits = col.clone();
-    //         digits.truncate(col.len() - 1);
-    //         let digits = digits.iter().map(|d| d.to_string()).collect();
-    //         PreOperation {
-    //             opr: col.last().unwrap().parse::<char>().unwrap(),
-    //             digits,
-    //         }
-    //     })
-    //     .collect();
-    // dbg!(&columns);
-    return 0;
+    // dbg!(&operations);
+    let results: Vec<isize> = operations.iter().map(|c| calc_operation(c)).collect();
+    results.iter().sum()
 }
 
 fn main() {
-    // parse("test_input.txt");
+    parse("test_input.txt");
     println!("Sum: {:?}", part_two("test_input.txt"));
 }
