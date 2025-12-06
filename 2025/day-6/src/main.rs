@@ -6,12 +6,6 @@ struct Operation {
     opr: char,
 }
 
-#[derive(Debug)]
-struct PreOperation {
-    digits: Vec<String>,
-    opr: char,
-}
-
 fn calc_operation(opr: &Operation) -> isize {
     match opr.opr {
         '+' => opr.nums.iter().sum(),
@@ -30,8 +24,8 @@ fn part_one(path: &str) -> isize {
     let mut columns: Vec<Vec<&str>> = vec![];
     for n in 0..contents[0].len() {
         let mut column: Vec<&str> = vec![];
-        for i in 0..contents.len() {
-            column.push(contents[i][n]);
+        for item in contents.clone() {
+            column.push(item[n]);
         }
         columns.push(column);
     }
@@ -47,7 +41,7 @@ fn part_one(path: &str) -> isize {
             }
         })
         .collect();
-    let results: Vec<isize> = columns.iter().map(|c| calc_operation(c)).collect();
+    let results: Vec<isize> = columns.iter().map(calc_operation).collect();
     results.iter().sum()
 }
 
@@ -57,7 +51,7 @@ fn gather_operation(cidx: usize, opr_len: usize, contents: Vec<Vec<char>>) -> Op
     let mut all_nums: Vec<isize> = vec![];
     nums.truncate(contents.len() - 1);
 
-    for n in (1..=opr_len) {
+    for n in 1..=opr_len {
         let mut single_num: Vec<char> = vec![];
         for line in nums.clone() {
             single_num.push(line[cidx - n]);
@@ -90,10 +84,11 @@ fn part_two(path: &str) -> isize {
         }
     }
 
-    let results: Vec<isize> = operations.iter().map(|c| calc_operation(c)).collect();
+    let results: Vec<isize> = operations.iter().map(calc_operation).collect();
     results.iter().sum()
 }
 
 fn main() {
-    println!("Sum: {:?}", part_two("input.txt"));
+    println!("Part1: {:?}", part_one("input.txt"));
+    println!("Part2: {:?}", part_two("input.txt"));
 }
