@@ -36,10 +36,33 @@ fn parse(path: &str) -> usize {
         .copied()
         .collect();
 
-    // dbg!(&id_ranges);
-    // dbg!(&ids);
-    // dbg!(&fresh_ids);
-    fresh_ids.iter().count()
+    let mut id_ranges = id_ranges;
+    id_ranges.dedup();
+    id_ranges.sort_by_key(|r| r.0);
+    let mut merged_ranges: Vec<(usize, usize)> = vec![];
+    for range in id_ranges.clone() {
+        if let Some(last) = merged_ranges.last_mut() {
+            if range.0 <= last.1 + 1 {
+                last.1 = last.1.max(range.1);
+            } else {
+                merged_ranges.push(range);
+            }
+        } else {
+            merged_ranges.push(range);
+        }
+    }
+
+    let all_fresh_count: Vec<usize> = merged_ranges
+        .iter()
+        .map(|range| {
+            if range.1 - range.0 == 0 {
+                0
+            } else {
+                range.1 - range.0 + 1
+            }
+        })
+        .collect();
+    all_fresh_count.iter().sum()
 }
 
 fn main() {
