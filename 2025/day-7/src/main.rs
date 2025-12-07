@@ -69,8 +69,58 @@ fn part_two(path: &str) -> usize {
             }
         }
     }
-    let mut visited = vec![vec![0usize; cols]; rows];
-    count_timelines(0, start, rows, &splits, &mut visited)
+    // Using iterative version instead of recursive
+    count_timelines_iterative(start, rows, cols, &splits)
+}
+
+fn count_timelines_iterative(
+    start_col: usize,
+    row_count: usize,
+    col_count: usize,
+    splits: &Vec<Vec<bool>>,
+) -> usize {
+    let mut timelines = vec![vec![0; col_count]; row_count];
+
+    // Step 1: Initialize bottom row - every cell has 1 timeline (reached the end)
+    for col in 0..col_count {
+        timelines[row_count - 1][col] = 1;
+    }
+
+    // Step 2: Work backwards from second-to-last row to top
+    for row in (0..row_count - 1).rev() {
+        // First pass: handle all non-splitters (they only depend on row below)
+        for col in 0..col_count {
+            if !splits[row][col] {
+                timelines[row][col] = timelines[row + 1][col];
+            }
+        }
+
+        // Second pass: handle splitters with multiple iterations until stable
+        // (needed because splitters in same row can depend on each other)
+        loop {
+            let mut changed = false;
+            for col in 0..col_count {
+                if splits[row][col] {
+                    let left = if col > 0 { timelines[row][col - 1] } else { 0 };
+                    let right = if col < col_count - 1 {
+                        timelines[row][col + 1]
+                    } else {
+                        0
+                    };
+                    let new_value = left + right;
+                    if timelines[row][col] != new_value {
+                        timelines[row][col] = new_value;
+                        changed = true;
+                    }
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
+    }
+    dbg!(&timelines);
+    timelines[0][start_col]
 }
 
 fn count_timelines(
@@ -107,5 +157,5 @@ fn count_timelines(
 }
 
 fn main() {
-    println!("Timelines: {:?}", part_two("input.txt"));
+    println!("Timelines: {:?}", part_two("test_input.txt"));
 }
