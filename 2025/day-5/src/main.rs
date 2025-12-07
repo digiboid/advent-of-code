@@ -40,27 +40,34 @@ fn parse(path: &str) -> usize {
     id_ranges.dedup();
     id_ranges.sort_by_key(|r| r.0);
     let mut merged_ranges: Vec<(usize, usize)> = vec![];
-    for range in id_ranges.clone() {
-        if let Some(last) = merged_ranges.last_mut() {
-            if range.0 <= last.1 + 1 {
-                last.1 = last.1.max(range.1);
-            } else {
-                merged_ranges.push(range);
+    let rem_ranges = id_ranges.split_off(1);
+    merged_ranges.push(id_ranges[0]);
+    for range in rem_ranges.clone() {
+        let last = merged_ranges.last_mut().unwrap();
+        if range.0 <= last.1 + 1 {
+            if last.1 < range.1 {
+                last.1 = range.1
             }
         } else {
             merged_ranges.push(range);
         }
     }
 
+    // for range in rem_ranges.clone() {
+    //     if let Some(last) = merged_ranges.last_mut() {
+    //         if range.0 <= last.1 + 1 {
+    //             last.1 = last.1.max(range.1);
+    //         } else {
+    //             merged_ranges.push(range);
+    //         }
+    //     } else {
+    //         merged_ranges.push(range);
+    //     }
+    // }
+
     let all_fresh_count: Vec<usize> = merged_ranges
         .iter()
-        .map(|range| {
-            if range.1 - range.0 == 0 {
-                0
-            } else {
-                range.1 - range.0 + 1
-            }
-        })
+        .map(|range| range.1 - range.0 + 1)
         .collect();
     all_fresh_count.iter().sum()
 }
