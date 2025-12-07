@@ -1,5 +1,4 @@
-use rand::prelude::*;
-use std::{any, fs};
+use std::fs;
 
 fn beam_sides(board: &mut Vec<Vec<char>>, rn: usize, cn: usize) {
     if board[rn - 1][cn] == '|' {
@@ -8,31 +7,10 @@ fn beam_sides(board: &mut Vec<Vec<char>>, rn: usize, cn: usize) {
     }
 }
 
-fn beam_quantum(board: &mut Vec<Vec<char>>, rn: usize, cn: usize, split_left: &mut bool) {
-    if board[rn - 1][cn] == '|' {
-        let mut rng = rand::rng();
-        if rng.random_bool(0.5) {
-            board[rn][cn + 1] = '|';
-        } else {
-            board[rn][cn - 1] = '|';
-            *split_left = true;
-            // dbg!(&split_left);
-        };
-    }
-}
-
 fn beam_down(board: &mut Vec<Vec<char>>, rn: usize, cn: usize) {
     if rn + 1 < board.len() {
         if board[rn + 1][cn] == '.' {
             board[rn + 1][cn] = '|'
-        }
-    }
-}
-
-fn beam_down_alt(board: &mut Vec<Vec<char>>, rn: usize, cn: usize) {
-    if rn < board.len() {
-        if board[rn][cn] == '.' {
-            board[rn][cn] = '|'
         }
     }
 }
@@ -79,47 +57,55 @@ fn part_one(path: &str) -> usize {
 
 fn part_two(path: &str) -> usize {
     let contents = fs::read_to_string(path).expect("There's no file in here");
-    let contents: Vec<&str> = contents.lines().collect();
-    let timelines = 0;
-    let mut split_left = false;
-    let mut all_boards: Vec<String> = vec![];
-    // HACK
-    for i in 0..=100000 {
-        let mut board: Vec<Vec<char>> = contents.iter().map(|s| s.chars().collect()).collect();
-        for rn in 0..board.len() {
-            if split_left == true {
-                // dbg!("split left is true");
-                for cn in 0..board[0].len() {
-                    match board[rn - 1][cn] {
-                        // 'S' => board[rn + 1][cn] = '|',
-                        // '^' => beam_quantum(&mut board, rn, cn, &mut split_left),
-                        '|' => beam_down_alt(&mut board, rn, cn),
-                        _ => (),
-                    }
-                }
-
-                split_left = false;
+    let grid: Vec<&[u8]> = contents.lines().map(str::as_bytes).collect();
+    let rows = grid.len();
+    let cols = grid[0].len();
+    let start = grid[0].iter().position(|&c| c == b'S').unwrap();
+    let mut splits = vec![vec![false; cols]; rows];
+    for (row_idx, row) in grid.iter().enumerate() {
+        for (col_idx, cell) in row.iter().enumerate() {
+            if cell == &b'^' {
+                splits[row_idx][col_idx] = true;
             }
-            for cn in 0..board[0].len() {
-                match board[rn][cn] {
-                    'S' => board[rn + 1][cn] = '|',
-                    '^' => beam_quantum(&mut board, rn, cn, &mut split_left),
-                    '|' => beam_down(&mut board, rn, cn),
-                    _ => (),
-                }
-            }
-        }
-        let pretty_board: Vec<String> = board.iter().map(|l| l.iter().collect()).collect();
-        let pretty_board: String = pretty_board.join("\n");
-        // println!("{}", &pretty_board);
-        if !all_boards.contains(&pretty_board) {
-            all_boards.push(pretty_board);
         }
     }
-    // println!("{:?}", &all_boards);
-    all_boards.iter().count()
+    let mut visited = vec![vec![0usize; cols]; rows];
+    count_timelines(0, start, rows, &splits, &mut visited)
+}
+
+fn count_timelines(
+    row: usize,
+    col: usize,
+    row_count: usize,
+    splits: &Vec<Vec<bool>>,
+    visited: &mut Vec<Vec<usize>>,
+) -> usize {
+    // skip visited cells
+    if visited[row][col] != 0 {
+        return visited[row][col];
+    }
+
+    if row == row_count - 1 {
+        // mark cell as visited
+        visited[row][col] = 1;
+        return 1;
+    }
+
+    // propagate down if not at splitter
+    if !splits[row][col] {
+        // mark cell as visited
+        let timelines = count_timelines(row + 1, col, row_count, splits, visited);
+        visited[row][col] = timelines;
+        return timelines;
+    }
+
+    // split
+    let timelines = count_timelines(row, col + 1, row_count, splits, visited)
+        + count_timelines(row, col - 1, row_count, splits, visited);
+    visited[row][col] = timelines;
+    timelines
 }
 
 fn main() {
-    println!("Timelines: {:?}", part_two("test_input.txt"));
+    println!("Timelines: {:?}", part_two("input.txt"));
 }
