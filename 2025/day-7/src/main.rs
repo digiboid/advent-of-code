@@ -1,9 +1,7 @@
 use std::fs;
 
 fn beam_sides(board: &mut Vec<Vec<char>>, rn: usize, cn: usize) {
-    dbg!("matched beam sides");
     if board[rn - 1][cn] == '|' {
-        dbg!("entered beam sides");
         board[rn][cn - 1] = '|';
         board[rn][cn + 1] = '|';
     }
@@ -12,8 +10,6 @@ fn beam_sides(board: &mut Vec<Vec<char>>, rn: usize, cn: usize) {
 fn beam_down(board: &mut Vec<Vec<char>>, rn: usize, cn: usize) {
     if rn + 1 < board.len() {
         if board[rn + 1][cn] == '.' {
-            dbg!("entered beam down");
-
             board[rn + 1][cn] = '|'
         }
     }
@@ -33,14 +29,13 @@ fn count_splits(board: &Vec<Vec<char>>) -> usize {
     splits
 }
 
-fn part_one(path: &str) {
+fn part_one(path: &str) -> usize {
     let contents = fs::read_to_string(path).expect("There's no file in here");
     let contents: Vec<&str> = contents.lines().collect();
     let mut board: Vec<Vec<char>> = contents.iter().map(|s| s.chars().collect()).collect();
-    dbg!(&board[0][7]);
-    // let mut reached_end = false;
-    // HACK
-    for i in 0..100 {
+    let mut split_count = count_splits(&board);
+    loop {
+        split_count = count_splits(&board);
         for rn in 0..board.len() {
             for cn in 0..board[0].len() {
                 match board[rn][cn] {
@@ -51,16 +46,14 @@ fn part_one(path: &str) {
                 }
             }
         }
-        // reached_end = board[board.len() - 1].iter().any(|c| *c == '|');
-        // if reached_end == true {
-        // break;
-        // }
+        if split_count == count_splits(&board) {
+            break;
+        }
     }
-    let split_count = count_splits(&board);
     let pretty_board: Vec<String> = board.iter().map(|l| l.iter().collect()).collect();
-    dbg!(&pretty_board);
-    dbg!(&split_count);
+    // dbg!(&pretty_board);
+    split_count
 }
 fn main() {
-    println!("{:?}", part_one("test_input.txt"));
+    println!("Splits: {:?}", part_one("input.txt"));
 }
